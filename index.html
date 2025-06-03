@@ -519,6 +519,26 @@
         'Name': 'John Smith'     // optional, set custom Tags
           }
          }]);
+
+        if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('https://cdn.pushwoosh.com/webpush/v3/pushwoosh-service-worker.js')
+        .then(function (registration) {
+          console.log('✅ Pushwoosh service worker registered:', registration.scope);
+            
+          Pushwoosh.push(function(api) {
+            api.subscribe().then(function(success) {
+              console.log('📬 Subscribed successfully:', success);
+            }).catch(function(err) {
+              console.error('❌ Subscription failed:', err);
+            });
+          });
+
+        }).catch(function (error) {
+          console.error('❌ Service worker registration failed:', error);
+        });
+    } else {
+      console.warn('Service workers are not supported in this browser.');
+    }
     </script>
 
     
