@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pushwoosh Debug</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      color: #e0e0e0;
+      padding: 20px;
+    }
+    button {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border: none;
+      background: #00d4ff;
+      color: #000;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    pre {
+      background: #2c2c2c;
+      padding: 10px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>📬 Pushwoosh Debug Tool</h1>
+  <p>Use buttons below to test subscription status, tokens, and Pushwoosh integration.</p>
+
+  <button onclick="checkStatus()">Check Subscription Status</button>
+  <button onclick="subscribe()">Subscribe</button>
+  <button onclick="unsubscribe()">Unsubscribe</button>
+  <pre id="output">Logs will appear here...</pre>
+
+  <script src="https://cdn.pushwoosh.com/webpush/v3/pushwoosh-web-notifications.js" async></script>
+
+  <script>
+    const log = (text) => {
+      const out = document.getElementById('output');
+      out.textContent += '\n' + text;
+    };
+
+    const clear = () => {
+      document.getElementById('output').textContent = '';
+    };
+
+    Pushwoosh = Pushwoosh || [];
+    Pushwoosh.push(['init', {
+      applicationCode: '6A132-8C2C5',
+      autoSubscribe: false,
+      logLevel: 'debug',
+      userId: 'dimon test'
+    }]);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/dimis.aka.websdk/pushwoosh-service-worker.js')
+        .then(reg => log('✅ Service worker registered: ' + reg.scope))
+        .catch(err => log('❌ Service worker registration failed: ' + err));
+    }
+
+    function checkStatus() {
+      clear();
+      Pushwoosh.push(api => {
+        api.getSubscription().then(sub => {
+          if (sub && sub.deviceToken) {
+            log('✅ Subscribed! Device token: ' + sub.deviceToken);
+            log(JSON.stringify(sub, null, 2));
+          } else {
+            log('🚫 Not subscribed.');
+            log(JSON.stringify(sub, null, 2));
+          }
+        }).catch(err => log('❌ Error getting subscription: ' + err));
+      });
+    }
+
+    function subscribe() {
+      clear();
+      Pushwoosh.push(api => {
+        api.subscribe().then(res => {
+          log('📬 Subscribed successfully: ' + JSON.stringify(res));
+          return api.getSubscription();
+        }).then(sub => {
+          log('📦 Subscription: ' + JSON.stringify(sub, null, 2));
+        }).catch(err => log('❌ Subscription error: ' + err));
+      });
+    }
+
+    function unsubscribe() {
+      clear();
+      Pushwoosh.push(api => {
+        api.unsubscribe().then(() => {
+          log('🔁 Unsubscribed successfully.');
+        }).catch(err => log('❌ Unsubscribe error: ' + err));
+      });
+    }
+  </script>
+</body>
+</html>
