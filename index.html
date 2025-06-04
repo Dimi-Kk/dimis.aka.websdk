@@ -523,9 +523,9 @@
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/dimis.aka.websdk/pushwoosh-service-worker.js', {
                 scope: '/dimis.aka.websdk/'
-        });
+        })
     
-        .then(function (registration) {
+       .then(function (registration) {
           console.log('✅ Pushwoosh service worker registered:', registration.scope);
             
           Pushwoosh.push(['subscribe', {
