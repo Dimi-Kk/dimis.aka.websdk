@@ -526,13 +526,13 @@
         .then(function (registration) {
           console.log('✅ Pushwoosh service worker registered:', registration.scope);
             
-          Pushwoosh.push(function(api) {
-            api.subscribe().then(function(success) {
-              console.log('📬 Subscribed successfully:', success);
-            }).catch(function(err) {
-              console.error('❌ Subscription failed:', err);
-            });
-          });
+          Pushwoosh.push(['subscribe', {
+            success: function(data) {
+              console.log('📬 Subscribed!', data);
+            },
+              error: function(error) {
+            }
+          }]);
 
         }).catch(function (error) {
           console.error('❌ Service worker registration failed:', error);
